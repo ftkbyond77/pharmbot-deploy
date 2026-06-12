@@ -4,33 +4,32 @@ services:
   api:
     build:
       context: .
-      dockerfile: api/Dockerfile
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     env_file: .env
     environment:
       LITELLM_DROP_PARAMS: "True"
-      QDRANT_URL: http://qdrant:6333
     volumes:
       - ./data/guidelines:/data/guidelines:ro
-    depends_on:
-      qdrant:
-        condition: service_healthy
-    restart: unless-stopped
-
-  # ── Qdrant vector store ────────────────────────────────────
-  qdrant:
-    image: qdrant/qdrant:latest
-    ports:
-      - "6333:6333"
-    volumes:
-      - qdrant_data:/qdrant/storage
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:6333/healthz || exit 1"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 300s
     restart: unless-stopped
 
-volumes:
-  qdrant_data:
+  # ── Next.js frontend ─────────────────────────────────────────
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
