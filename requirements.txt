@@ -1,0 +1,35 @@
+# ── LLM & Agent ──────────────────────────────────────────────
+langgraph>=0.2.0
+langchain>=0.2.0
+langchain-google-genai>=1.0.0      # Gemini via LangChain
+langchain-community>=0.2.0
+
+# ── Vector Store ─────────────────────────────────────────────
+qdrant-client>=1.9.0
+
+# ── Embeddings ───────────────────────────────────────────────
+sentence-transformers>=3.0.0       # SentenceTransformer("BAAI/bge-m3")
+torch>=2.0.0                       # required by sentence-transformers
+
+
+# ── PDF Parsing (docling replaces openkb + unstructured) ──────
+docling>=2.0.0                     # IBM docling — handles tables, images, Thai CID
+pymupdf>=1.24.0                    # PyMuPDF — fast fallback for large/corrupt PDFs
+
+# ── Reranking ─────────────────────────────────────────────────
+flashrank>=0.2.9                   # lightweight cross-encoder reranker (no GPU required)
+
+# ── Thai NLP ─────────────────────────────────────────────────
+pythainlp>=5.0.0                   # NER + tokenize (Phase 2 KG)
+
+# ── Backend ──────────────────────────────────────────────────
+fastapi>=0.111.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.7.0
+pydantic-settings>=2.3.0           # config via env vars
+python-dotenv>=1.0.0
+httpx>=0.27.0                      # async HTTP client
+
+# ── Utilities ────────────────────────────────────────────────
+tenacity>=8.3.0                    # retry decorator
+loguru>=0.7.0                      # structured logging
