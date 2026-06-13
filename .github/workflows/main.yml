@@ -1,0 +1,52 @@
+name: PharmBot CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  # CI (Continuous Integration)
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          pip install flake8 safety
+          # เช็คว่ามีไฟล์ requirements.txt อยู่จริงก่อนทำการติดตั้ง ป้องกัน Pipeline พังโดยใช่เหตุ
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # Run Linter
+      - name: Run Linter (Flake8)
+        run: flake8 api/ --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      # Run Security Scan
+      - name: Security Scan (Safety)
+        run: safety check --bare
+
+      # Build Test
+      - name: Build Docker Compose
+        run: docker compose build
+
+  # CD (Continuous Deployment)
+  deploy:
+    needs: ci 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.GCP_VM_HOST }}
+          username: ${{ secrets.GCP_VM_USERNAME }}
+          key: ${{ secrets.GCP_VM_SSH_KEY }}
+          connect_timeout: 30s
+          script: |
+            cd ~/pharmbot-deploy
+            git pull
+            docker compose up -d --build

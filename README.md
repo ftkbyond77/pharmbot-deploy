@@ -29,3 +29,21 @@ c = QdrantClient(url='http://localhost:6333')
 c.delete_collection('pharmbot_guidelines')
 print('deleted')
 "
+
+
+
+## ===== Deploy Section =====
+```
+IP for UI: http://34.87.101.105:3000
+```
+
+Check for System Running
+```
+cd pharmbot-deploy
+sudo docker-compose ps
+```
+
+Check for Lastest Logging
+```
+sudo docker-compose logs --tail=100 -f api
+```
