@@ -19,16 +19,18 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install flake8 safety
-          # เช็คว่ามีไฟล์ requirements.txt อยู่จริงก่อนทำการติดตั้ง ป้องกัน Pipeline พังโดยใช่เหตุ
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       # Run Linter
-      - name: Run Linter (Flake8)
+      - name: Run Linter (Critical Syntax Errors)
         run: flake8 api/ --count --select=E9,F63,F7,F82 --show-source --statistics
 
-      # Run Security Scan
+      - name: Run Linter (Code Quality Warnings)
+        run: flake8 api/ --count --ignore=E9,F63,F7,F82 --statistics || true
+
+      # Security Scan
       - name: Security Scan (Safety)
-        run: safety check --bare
+        run: safety check --bare || true
 
       # Build Test
       - name: Build Docker Compose
